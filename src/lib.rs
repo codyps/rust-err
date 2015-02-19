@@ -11,7 +11,7 @@ macro_rules! some_error {
 #[macro_export]
 macro_rules! or_panic {
     ($e:expr) => ({
-        let v = $e;
+        let v : Result<_,_> = $e;
         let s = stringify!($e);
         or_panic!(v, "failure in {:?} = {:?}", s, v.err())
     });
@@ -53,10 +53,7 @@ mod test {
 
     #[test]
     fn it_works() {
-        or_panic!( {
-            let x : Result<(), &'static str> = Ok(());
-            x;
-        });
+        or_panic!(Result::Ok::<(),&'static str>(()));
 
         println!("Got: {:?}", f())
     }
