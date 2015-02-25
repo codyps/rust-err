@@ -65,11 +65,13 @@ macro_rules! error_enum {
     (bare $enum_name:ident $elem:ident ( $($elem_type:ty),*) ) => (
     );
 
-    (enum $enum_name:ident { $($elem_kind:ident $elem:ident ( $($elem_type:ty),* ) ),* }) => (
+    ($(enum $enum_name:ident { $($elem_kind:ident $elem:ident ( $($elem_type:ty),* ) ),* })* ) => (
+        $(
         #[derive(Debug)]
         enum $enum_name { $($elem($($elem_type),*)),* }
 
         $(error_enum!{$elem_kind $enum_name $elem ( $($elem_type),* ) })*
+        )*
     )
 }
 
@@ -110,10 +112,17 @@ mod test {
     }
 
     mod ctrl {
-        error_enum! {enum GenEnum {
-            auto Foo(&'static str),
-            bare Bar(usize)
-        }}
+        #![allow(dead_code)]
+        error_enum! {
+            enum GenEnum {
+                auto Foo(&'static str),
+                bare Bar(usize)
+            }
+            enum NoopEnum {
+                bare Noop(usize),
+                auto Foo(&'static str)
+            }
+        }
 
         fn x() -> Result<(),GenEnum> {
             try!(Err("hi"))
