@@ -36,6 +36,21 @@ macro_rules! from_error  {
     )
 }
 
+#[macro_export]
+macro_rules! error_enum {
+    (enum $enum_name:ident { $( $elem:ident ( $elem_type:ty ) ),* }) => (
+        #[derive(Debug)]
+        enum $enum_name { $($elem($elem_type)),* }
+
+        $(
+        impl ::std::error::FromError<$elem_type> for $enum_name {
+            fn from_error(err: $elem_type) -> $enum_name {
+                $enum_name::$elem(err)
+            }
+        }
+        )*
+    )
+}
 
 #[cfg(test)]
 mod test {
@@ -58,6 +73,16 @@ mod test {
         println!("Got: {:?}", f())
     }
 
+    error_enum! {enum GenEnum {
+        Foo(&'static str)
+    }}
 
+    fn x() -> Result<(),GenEnum> {
+        try!(Err("hi"))
+    }
 
+    #[test]
+    fn error_enum() {
+        println!("Got: {:?}", x());
+    }
 }
