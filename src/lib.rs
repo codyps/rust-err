@@ -111,7 +111,8 @@ mod test {
 
     mod ctrl {
         error_enum! {enum GenEnum {
-            auto Foo(&'static str)
+            auto Foo(&'static str),
+            bare Bar(usize)
         }}
 
         fn x() -> Result<(),GenEnum> {
@@ -120,7 +121,17 @@ mod test {
 
         #[test]
         fn test() {
-            println!("Got: {:?}", x());
+            println!("Got: {:?} {:?}", x(), GenEnum::Bar(3));
         }
+
+        /*
+        #[should_fail_to_build]
+        fn fail_conv() {
+            fn y() -> Result<(),GenEnum> {
+                try!(Err(3usize))
+            }
+            println!("Got: {:?}", y());
+        }
+        */
     }
 }
