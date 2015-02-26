@@ -15,11 +15,11 @@ macro_rules! or_panic {
         let s = stringify!($e);
         or_panic!(v, "failure in {:?} = {:?}", s, v.err())
     });
-    ($e:expr, $fmt:expr, $($arg:tt)+) => (
+    ($e:expr, $($arg:expr),+) => (
         match $e {
             Ok(e) => e,
             Err(_) => {
-                panic!($fmt, $($arg)+)
+                panic!($($arg),+)
             }
         }
     );
@@ -92,6 +92,8 @@ mod test {
     #[test]
     fn it_works() {
         or_panic!(Result::Ok::<(),&'static str>(()));
+        or_panic!(Result::Ok::<(),&'static str>(()), "HI");
+        or_panic!(Result::Ok::<(),&'static str>(()), "HI {:?}", 3);
 
         println!("Got: {:?}", f())
     }
