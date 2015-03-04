@@ -65,7 +65,7 @@ macro_rules! error_enum {
     (bare $enum_name:ident $elem:ident ( $($elem_type:ty),*) ) => (
     );
 
-    (pub $(enum $enum_name:ident { $($elem_kind:ident $elem:ident ( $($elem_type:ty),* ) ),* })* ) => (
+    ($(pub enum $enum_name:ident { $($elem_kind:ident $elem:ident ( $($elem_type:ty),* ) ),* })* ) => (
         $(
         #[derive(Debug)]
         pub enum $enum_name { $($elem($($elem_type),*)),* }
