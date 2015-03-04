@@ -1,5 +1,11 @@
 #[macro_export]
 macro_rules! some_error {
+    ($call:expr, $($arg:expr),*) => (
+        match $call {
+            Some(e) => panic!("{} => {:?} :: {}", stringify!($call), e, format!($($arg),*)),
+            None => ()
+        }
+    );
     ($call:expr) => (
         match $call {
             Some(e) => panic!("{} => {:?}", stringify!($call), e),
