@@ -42,10 +42,10 @@ macro_rules! try_none {
 }
 
 #[macro_export]
-macro_rules! from_error  {
+macro_rules! from  {
     ($enum_base:ident => $enum_elem:ident($elem_type:ty)) => (
-        impl ::std::error::FromError<$elem_type> for $enum_base {
-            fn from_error(err: $elem_type) -> $enum_base {
+        impl ::std::convert::From<$elem_type> for $enum_base {
+            fn from(err: $elem_type) -> $enum_base {
                 $enum_base::$enum_elem(err)
             }
         }
@@ -53,14 +53,14 @@ macro_rules! from_error  {
 }
 
 #[macro_export]
-macro_rules! auto_error_enum {
+macro_rules! auto_from_enum {
     (enum $enum_name:ident { $( $elem:ident ( $elem_type:ty ) ),* }) => (
         #[derive(Debug)]
         enum $enum_name { $($elem($elem_type)),* }
 
         $(
-        impl ::std::error::FromError<$elem_type> for $enum_name {
-            fn from_error(err: $elem_type) -> $enum_name {
+        impl ::std::convert::From<$elem_type> for $enum_name {
+            fn from(err: $elem_type) -> $enum_name {
                 $enum_name::$elem(err)
             }
         }
@@ -69,10 +69,10 @@ macro_rules! auto_error_enum {
 }
 
 #[macro_export]
-macro_rules! error_enum {
+macro_rules! from_enum {
     (auto $enum_name:ident $elem:ident ( $elem_type:ty ) ) => (
-        impl ::std::error::FromError<$elem_type> for $enum_name {
-            fn from_error(err: $elem_type) -> $enum_name {
+        impl ::std::convert::From<$elem_type> for $enum_name {
+            fn from(err: $elem_type) -> $enum_name {
                 $enum_name::$elem(err)
             }
         }
@@ -86,7 +86,7 @@ macro_rules! error_enum {
         #[derive(Debug)]
         pub enum $enum_name { $($elem($($elem_type),*)),* }
 
-        $(error_enum!{$elem_kind $enum_name $elem ( $($elem_type),* ) })*
+        $(from_enum!{$elem_kind $enum_name $elem ( $($elem_type),* ) })*
         )*
     )
 }
@@ -99,7 +99,7 @@ mod test {
         Foo(&'static str)
     }
 
-    from_error! { AnError => Foo(&'static str) }
+    from! { AnError => Foo(&'static str) }
 
     fn f() -> Result<(),AnError> {
         try!(Err("hi"))
@@ -115,7 +115,7 @@ mod test {
     }
 
     mod auto {
-        auto_error_enum! {enum FooEnum {
+        auto_from_enum! {enum FooEnum {
             Foo(&'static str)
         }}
 
@@ -131,7 +131,7 @@ mod test {
 
     mod ctrl {
         #![allow(dead_code)]
-        error_enum! {
+        from_enum! {
             pub enum GenEnum {
                 auto Foo(&'static str),
                 bare Bar(usize)
