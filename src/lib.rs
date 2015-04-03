@@ -26,6 +26,16 @@ macro_rules! or_panic {
 }
 
 #[macro_export]
+macro_rules! try_none {
+    ($e:expr) => ({
+        match $e {
+            Ok(v) => v,
+            Err(_) => None,
+        }
+    })
+}
+
+#[macro_export]
 macro_rules! from_error  {
     ($enum_base:ident => $enum_elem:ident($elem_type:ty)) => (
         impl ::std::error::FromError<$elem_type> for $enum_base {
