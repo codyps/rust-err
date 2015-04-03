@@ -1,5 +1,11 @@
 #[macro_export]
 macro_rules! some_error {
+    ($call:expr, $($arg:expr),*) => (
+        match $call {
+            Some(e) => panic!("{} => {:?} :: {}", stringify!($call), e, format!($($arg),*)),
+            None => ()
+        }
+    );
     ($call:expr) => (
         match $call {
             Some(e) => panic!("{} => {:?}", stringify!($call), e),
@@ -75,10 +81,10 @@ macro_rules! error_enum {
     (bare $enum_name:ident $elem:ident ( $($elem_type:ty),*) ) => (
     );
 
-    ($(enum $enum_name:ident { $($elem_kind:ident $elem:ident ( $($elem_type:ty),* ) ),* })* ) => (
+    ($(pub enum $enum_name:ident { $($elem_kind:ident $elem:ident ( $($elem_type:ty),* ) ),* })* ) => (
         $(
         #[derive(Debug)]
-        enum $enum_name { $($elem($($elem_type),*)),* }
+        pub enum $enum_name { $($elem($($elem_type),*)),* }
 
         $(error_enum!{$elem_kind $enum_name $elem ( $($elem_type),* ) })*
         )*
@@ -126,11 +132,11 @@ mod test {
     mod ctrl {
         #![allow(dead_code)]
         error_enum! {
-            enum GenEnum {
+            pub enum GenEnum {
                 auto Foo(&'static str),
                 bare Bar(usize)
             }
-            enum NoopEnum {
+            pub enum NoopEnum {
                 bare Noop(usize),
                 auto Foo(&'static str)
             }
